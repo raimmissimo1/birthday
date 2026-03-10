@@ -77,13 +77,13 @@ const BACKGROUND_FADE_START = Math.max(
 );
 
 const TYPED_LINES = [
-  "> tina",
+  "> Aiymzhan",
   "...",
   "> today is your birthday",
   "...",
   "> so i made you this computer program",
   "...",
-  "٩(◕‿◕)۶ ٩(◕‿◕)۶ ٩(◕‿◕)۶"
+  "<3 <3 <3 <3 <3 <3 <3 <3 <3 <3 <3 <3 <3"
 ];
 const TYPED_CHAR_DELAY = 100;
 const POST_TYPING_SCENE_DELAY = 1000;
