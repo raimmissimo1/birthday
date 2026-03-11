@@ -1,5 +1,6 @@
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Environment, OrbitControls } from "@react-three/drei";
+import FallingGreetings from "./components/FallingGreetings";
 import {
   Suspense,
   useCallback,
@@ -51,10 +52,9 @@ const CANDLE_START_Y = 5;
 const CANDLE_END_Y = 0;
 const CANDLE_DROP_DURATION = 1.2;
 const CANDLE_DROP_START =
-  Math.max(CAKE_DESCENT_DURATION, TABLE_SLIDE_START + TABLE_SLIDE_DURATION) +
-  1.0;
+  Math.max(CAKE_DESCENT_DURATION, TABLE_SLIDE_START + TABLE_SLIDE_DURATION) + 1.0;
 
-const totalAnimationTime = CANDLE_DROP_START + CANDLE_DROP_DURATION;
+const TOTAL_ANIMATION_TIME = CANDLE_DROP_START + CANDLE_DROP_DURATION;
 
 const ORBIT_TARGET = new Vector3(0, 1, 0);
 const ORBIT_INITIAL_RADIUS = 3;
@@ -62,7 +62,7 @@ const ORBIT_INITIAL_HEIGHT = 1;
 const ORBIT_INITIAL_AZIMUTH = Math.PI / 2;
 const ORBIT_MIN_DISTANCE = 2;
 const ORBIT_MAX_DISTANCE = 8;
-const ORBIT_MIN_POLAR = Math.PI * 0;
+const ORBIT_MIN_POLAR = 0;
 const ORBIT_MAX_POLAR = Math.PI / 2;
 
 const BACKGROUND_FADE_DURATION = 1;
@@ -83,11 +83,13 @@ const TYPED_LINES = [
   "...",
   "> so i made you this computer program",
   "...",
-  "<3 <3 <3 <3 <3 <3 <3 <3 <3 <3 <3 <3 <3"
+  "<3 <3 <3 <3 <3 <3 <3 <3 <3 <3 <3 <3 <3 <3 <3",
 ];
+
 const TYPED_CHAR_DELAY = 100;
 const POST_TYPING_SCENE_DELAY = 1000;
 const CURSOR_BLINK_INTERVAL = 480;
+const GREETINGS_DURATION = 6000;
 
 type BirthdayCardConfig = {
   id: string;
@@ -101,8 +103,8 @@ const BIRTHDAY_CARDS: ReadonlyArray<BirthdayCardConfig> = [
     id: "confetti",
     image: "/card.png",
     position: [1, 0.081, -2],
-    rotation: [-Math.PI / 2 , 0, Math.PI / 3],
-  }
+    rotation: [-Math.PI / 2, 0, Math.PI / 3],
+  },
 ];
 
 function AnimatedScene({
@@ -118,6 +120,7 @@ function AnimatedScene({
   const cakeGroup = useRef<Group>(null);
   const tableGroup = useRef<Group>(null);
   const candleGroup = useRef<Group>(null);
+
   const animationStartRef = useRef<number | null>(null);
   const hasPrimedRef = useRef(false);
   const hasCompletedRef = useRef(false);
@@ -151,9 +154,7 @@ function AnimatedScene({
     const table = tableGroup.current;
     const candle = candleGroup.current;
 
-    if (!cake || !table || !candle) {
-      return;
-    }
+    if (!cake || !table || !candle) return;
 
     if (!hasPrimedRef.current) {
       cake.position.set(0, CAKE_START_Y, 0);
@@ -177,6 +178,7 @@ function AnimatedScene({
     if (hasCompletedRef.current) {
       emitBackgroundOpacity(0);
       emitEnvironmentProgress(1);
+
       if (!completionNotifiedRef.current) {
         completionNotifiedRef.current = true;
         onAnimationComplete?.();
@@ -189,7 +191,7 @@ function AnimatedScene({
     }
 
     const elapsed = clock.elapsedTime - animationStartRef.current;
-    const clampedElapsed = clamp(elapsed, 0, totalAnimationTime);
+    const clampedElapsed = clamp(elapsed, 0, TOTAL_ANIMATION_TIME);
 
     const cakeProgress = clamp(clampedElapsed / CAKE_DESCENT_DURATION, 0, 1);
     const cakeEase = easeOutCubic(cakeProgress);
@@ -210,13 +212,12 @@ function AnimatedScene({
       const tableEase = easeOutCubic(tableProgress);
       tableZ = lerp(TABLE_START_Z, TABLE_END_Z, tableEase);
     }
+
     table.position.set(0, 0, tableZ);
     table.rotation.set(0, 0, 0);
 
     if (clampedElapsed >= CANDLE_DROP_START) {
-      if (!candle.visible) {
-        candle.visible = true;
-      }
+      candle.visible = true;
       const candleProgress = clamp(
         (clampedElapsed - CANDLE_DROP_START) / CANDLE_DROP_DURATION,
         0,
@@ -244,16 +245,19 @@ function AnimatedScene({
       emitEnvironmentProgress(1 - backgroundOpacity);
     }
 
-    const animationDone = clampedElapsed >= totalAnimationTime;
+    const animationDone = clampedElapsed >= TOTAL_ANIMATION_TIME;
     if (animationDone) {
       cake.position.set(0, CAKE_END_Y, 0);
       cake.rotation.set(0, 0, 0);
       table.position.set(0, 0, TABLE_END_Z);
       candle.position.set(0, CANDLE_END_Y, 0);
       candle.visible = true;
+
       emitBackgroundOpacity(0);
       emitEnvironmentProgress(1);
+
       hasCompletedRef.current = true;
+
       if (!completionNotifiedRef.current) {
         completionNotifiedRef.current = true;
         onAnimationComplete?.();
@@ -265,6 +269,7 @@ function AnimatedScene({
     <>
       <group ref={tableGroup}>
         <Table />
+
         <PictureFrame
           image="/frame2.jpg"
           position={[0, 0.735, 3]}
@@ -289,6 +294,7 @@ function AnimatedScene({
           rotation={[0, 4.2, 0]}
           scale={0.75}
         />
+
         {cards.map((card) => (
           <BirthdayCard
             key={card.id}
@@ -301,9 +307,11 @@ function AnimatedScene({
           />
         ))}
       </group>
+
       <group ref={cakeGroup}>
         <Cake />
       </group>
+
       <group ref={candleGroup}>
         <Candle isLit={candleLit} scale={0.25} position={[0, 1.1, 0]} />
       </group>
@@ -321,6 +329,7 @@ function ConfiguredOrbitControls() {
       ORBIT_INITIAL_HEIGHT,
       Math.cos(ORBIT_INITIAL_AZIMUTH) * ORBIT_INITIAL_RADIUS
     );
+
     const cameraPosition = ORBIT_TARGET.clone().add(offset);
     camera.position.copy(cameraPosition);
     camera.lookAt(ORBIT_TARGET);
@@ -345,18 +354,11 @@ function ConfiguredOrbitControls() {
   );
 }
 
-type EnvironmentBackgroundControllerProps = {
-  intensity: number;
-};
-
-function EnvironmentBackgroundController({
-  intensity,
-}: EnvironmentBackgroundControllerProps) {
+function EnvironmentBackgroundController({ intensity }: { intensity: number }) {
   const scene = useThree((state) => state.scene);
 
   useEffect(() => {
     if ("backgroundIntensity" in scene) {
-      // Cast required because older typings might not include backgroundIntensity yet.
       (scene as typeof scene & { backgroundIntensity: number }).backgroundIntensity =
         intensity;
     }
@@ -364,7 +366,6 @@ function EnvironmentBackgroundController({
 
   return null;
 }
-
 
 export default function App() {
   const [hasStarted, setHasStarted] = useState(false);
@@ -377,44 +378,64 @@ export default function App() {
   const [hasAnimationCompleted, setHasAnimationCompleted] = useState(false);
   const [isCandleLit, setIsCandleLit] = useState(true);
   const [fireworksActive, setFireworksActive] = useState(false);
+  const [showGreetings, setShowGreetings] = useState(false);
+  const [showFinalMessage, setShowFinalMessage] = useState(false);
   const [activeCardId, setActiveCardId] = useState<string | null>(null);
+
   const backgroundAudioRef = useRef<HTMLAudioElement | null>(null);
+  const greetingsTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
     const audio = new Audio("/music.mp3");
     audio.loop = true;
     audio.preload = "auto";
     backgroundAudioRef.current = audio;
+
     return () => {
       audio.pause();
       backgroundAudioRef.current = null;
+
+      if (greetingsTimeoutRef.current !== null) {
+        window.clearTimeout(greetingsTimeoutRef.current);
+      }
     };
   }, []);
 
   const playBackgroundMusic = useCallback(() => {
     const audio = backgroundAudioRef.current;
-    if (!audio) {
-      return;
-    }
-    if (!audio.paused) {
-      return;
-    }
+    if (!audio) return;
+    if (!audio.paused) return;
+
     audio.currentTime = 0;
+
     void audio.play().catch(() => {
-      // ignore play errors (browser might block)
+      // browser may block autoplay until interaction
     });
   }, []);
 
+  const triggerCelebration = useCallback(() => {
+    setFireworksActive(true);
+    setShowGreetings(true);
+    setShowFinalMessage(true);
+
+    if (greetingsTimeoutRef.current !== null) {
+      window.clearTimeout(greetingsTimeoutRef.current);
+    }
+
+    greetingsTimeoutRef.current = window.setTimeout(() => {
+      setShowGreetings(false);
+    }, GREETINGS_DURATION);
+  }, []);
+
   const typingComplete = currentLineIndex >= TYPED_LINES.length;
+
   const typedLines = useMemo(() => {
     if (TYPED_LINES.length === 0) {
       return [""];
     }
 
     return TYPED_LINES.map((line, index) => {
-      if (typingComplete || index < currentLineIndex) {
-        return line;
-      }
+      if (typingComplete || index < currentLineIndex) return line;
       if (index === currentLineIndex) {
         return line.slice(0, Math.min(currentCharIndex, line.length));
       }
@@ -425,6 +446,7 @@ export default function App() {
   const cursorLineIndex = typingComplete
     ? Math.max(typedLines.length - 1, 0)
     : currentLineIndex;
+
   const cursorTargetIndex = Math.max(
     Math.min(cursorLineIndex, typedLines.length - 1),
     0
@@ -437,6 +459,8 @@ export default function App() {
       setSceneStarted(false);
       setIsCandleLit(true);
       setFireworksActive(false);
+      setShowGreetings(false);
+      setShowFinalMessage(false);
       setHasAnimationCompleted(false);
       return;
     }
@@ -446,12 +470,14 @@ export default function App() {
         const handle = window.setTimeout(() => {
           setSceneStarted(true);
         }, POST_TYPING_SCENE_DELAY);
+
         return () => window.clearTimeout(handle);
       }
       return;
     }
 
     const currentLine = TYPED_LINES[currentLineIndex] ?? "";
+
     const handle = window.setTimeout(() => {
       if (currentCharIndex < currentLine.length) {
         setCurrentCharIndex((prev) => prev + 1);
@@ -483,29 +509,37 @@ export default function App() {
     const handle = window.setInterval(() => {
       setCursorVisible((prev) => !prev);
     }, CURSOR_BLINK_INTERVAL);
+
     return () => window.clearInterval(handle);
   }, []);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.code !== "Space" && event.key !== " ") {
-        return;
-      }
+      if (event.code !== "Space" && event.key !== " ") return;
+
       event.preventDefault();
+
       if (!hasStarted) {
         playBackgroundMusic();
         setHasStarted(true);
         return;
       }
+
       if (hasAnimationCompleted && isCandleLit) {
         setIsCandleLit(false);
-        setFireworksActive(true);
+        triggerCelebration();
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [hasStarted, hasAnimationCompleted, isCandleLit, playBackgroundMusic]);
+  }, [
+    hasStarted,
+    hasAnimationCompleted,
+    isCandleLit,
+    playBackgroundMusic,
+    triggerCelebration,
+  ]);
 
   const handleCardToggle = useCallback((id: string) => {
     setActiveCardId((current) => (current === id ? null : id));
@@ -515,6 +549,8 @@ export default function App() {
 
   return (
     <div className="App">
+      <FallingGreetings active={showGreetings} />
+
       <div
         className="background-overlay"
         style={{ opacity: backgroundOpacity }}
@@ -525,6 +561,7 @@ export default function App() {
               cursorVisible &&
               index === cursorTargetIndex &&
               (!typingComplete || !sceneStarted);
+
             return (
               <span className="typed-line" key={`typed-line-${index}`}>
                 {line || "\u00a0"}
@@ -538,9 +575,19 @@ export default function App() {
           })}
         </div>
       </div>
+
+      {showFinalMessage && (
+        <div className="final-message">
+          <div className="final-message-subtitle">
+            I hope this little surprise made you smile
+          </div>
+        </div>
+      )}
+
       {hasAnimationCompleted && isCandleLit && (
         <div className="hint-overlay">press space to blow out the candle</div>
       )}
+
       <Canvas
         gl={{ alpha: true }}
         style={{ background: "transparent" }}
@@ -559,8 +606,14 @@ export default function App() {
             activeCardId={activeCardId}
             onToggleCard={handleCardToggle}
           />
+
           <ambientLight intensity={(1 - environmentProgress) * 0.8} />
-          <directionalLight intensity={0.5} position={[2, 10, 0]} color={[1, 0.9, 0.95]}/>
+          <directionalLight
+            intensity={0.5}
+            position={[2, 10, 0]}
+            color={[1, 0.9, 0.95]}
+          />
+
           <Environment
             files={["/shanghai_bund_4k.hdr"]}
             backgroundRotation={[0, 3.3, 0]}
@@ -569,7 +622,11 @@ export default function App() {
             environmentIntensity={0.1 * environmentProgress}
             backgroundIntensity={0.05 * environmentProgress}
           />
-          <EnvironmentBackgroundController intensity={0.05 * environmentProgress} />
+
+          <EnvironmentBackgroundController
+            intensity={0.05 * environmentProgress}
+          />
+
           <Fireworks isActive={fireworksActive} origin={[0, 10, 0]} />
           <ConfiguredOrbitControls />
         </Suspense>
