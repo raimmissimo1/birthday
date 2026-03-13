@@ -83,7 +83,7 @@ const TYPED_LINES = [
   "...",
   "> so i made you this computer program",
   "...",
-  "<3 <3 <3 <3 <3 <3 <3 <3 <3 <3 <3 <3 <3 <3 <3",
+  "<3 <3 <3 <3 <3 <3 <3 <3 <3 <3 <3 <3 <3 <3 ",
 ];
 
 const TYPED_CHAR_DELAY = 100;
