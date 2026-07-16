@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1200">
+  <rect width="800" height="1200" fill="#1f1c29"/>
+  <rect x="55" y="55" width="690" height="1090" rx="28" fill="none" stroke="#d9ae4b" stroke-width="7"/>
+  <circle cx="150" cy="190" r="100" fill="#d9ae4b" opacity=".12"/><circle cx="660" cy="1030" r="145" fill="#d9ae4b" opacity=".1"/>
+  <path d="M150 320h500M150 855h500" stroke="#d9ae4b" stroke-width="3"/>
+  <text x="400" y="490" fill="#f6df9a" font-family="Arial, sans-serif" font-size="58" font-weight="700" text-anchor="middle">Здесь может быть</text>
+  <text x="400" y="565" fill="#f6df9a" font-family="Arial, sans-serif" font-size="58" font-weight="700" text-anchor="middle">ваша реклама</text>
+  <text x="400" y="655" fill="#fff5d3" font-family="Arial, sans-serif" font-size="26" text-anchor="middle">Ваше фото или поздравление</text>
+  <path d="M260 760l35-35 35 35 35-35 35 35 35-35 35 35 35-35" fill="none" stroke="#d9ae4b" stroke-width="8" stroke-linecap="round"/>
+</svg>

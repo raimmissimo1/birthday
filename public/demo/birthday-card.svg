@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+  <defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff4fa"/><stop offset="1" stop-color="#f5d8e8"/></linearGradient></defs>
+  <rect width="800" height="600" rx="34" fill="url(#bg)"/>
+  <rect x="35" y="35" width="730" height="530" rx="24" fill="none" stroke="#c94f83" stroke-width="5"/>
+  <path d="M130 125c-33-37-87 9 0 74 87-65 33-111 0-74Zm540 335c-33-37-87 9 0 74 87-65 33-111 0-74Z" fill="#e783af" opacity=".7"/>
+  <text x="400" y="170" fill="#a93166" font-family="Arial, sans-serif" font-size="54" font-weight="700" text-anchor="middle">Happy Birthday</text>
+  <text x="400" y="245" fill="#b93666" font-family="Arial, sans-serif" font-size="38" font-weight="700" text-anchor="middle">С днём рождения!</text>
+  <path d="M350 295c-28-32-73 8 0 62 73-54 28-94 0-62Zm100 0c-28-32-73 8 0 62 73-54 28-94 0-62Z" fill="#e783af"/>
+  <text x="400" y="410" fill="#513442" font-family="Arial, sans-serif" font-size="29" text-anchor="middle">Пусть этот год принесёт радость,</text>
+  <text x="400" y="455" fill="#513442" font-family="Arial, sans-serif" font-size="29" text-anchor="middle">яркие события и исполнение желаний!</text>
+</svg>

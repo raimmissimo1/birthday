@@ -1,4 +1,4 @@
-import { useCursor, useTexture } from "@react-three/drei";
+import { useCursor } from "@react-three/drei";
 import { useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
 import {
   useCallback,
@@ -13,9 +13,9 @@ import {
   Euler,
   Group,
   Quaternion,
-  SRGBColorSpace,
   Vector3,
 } from "three";
+import { useSafeTexture } from "./useSafeTexture";
 
 type BirthdayCardProps = {
   id: string;
@@ -33,6 +33,7 @@ const CARD_HEIGHT = 3 * CARD_SCALE;
 const CAMERA_DISTANCE = 1.2;
 const CAMERA_Y_FLOOR = 0.8;
 const HOVER_LIFT = 0.04;
+const ACTIVE_SCALE = 1.18;
 
 export function BirthdayCard({
   id,
@@ -49,11 +50,7 @@ export function BirthdayCard({
 
   useCursor(isHovered || isActive, "pointer");
 
-  const texture = useTexture(image);
-  useEffect(() => {
-    texture.colorSpace = SRGBColorSpace;
-    texture.anisotropy = 4;
-  }, [texture]);
+  const texture = useSafeTexture(image, "card");
 
   const defaultPosition = useMemo(
     () => new Vector3(...tablePosition),
@@ -119,6 +116,9 @@ export function BirthdayCard({
 
     group.position.lerp(positionTarget, lerpAlpha);
     group.quaternion.slerp(rotationTarget, slerpAlpha);
+    const targetScale = isActive ? ACTIVE_SCALE : isHovered ? 1.03 : 1;
+    const scale = group.scale.x + (targetScale - group.scale.x) * lerpAlpha;
+    group.scale.setScalar(scale);
   });
 
   const handlePointerOver = useCallback(
@@ -162,6 +162,7 @@ export function BirthdayCard({
           <planeGeometry args={[CARD_WIDTH, CARD_HEIGHT]} />
           <meshStandardMaterial
             map={texture}
+            side={DoubleSide}
             roughness={0.35}
             metalness={0.05}
             toneMapped={false}
@@ -170,15 +171,6 @@ export function BirthdayCard({
         <mesh position={[0, 0, -0.001]} rotation={[0, Math.PI, 0]}>
           <planeGeometry args={[CARD_WIDTH, CARD_HEIGHT]} />
           <meshStandardMaterial color="#f7f2ff" />
-        </mesh>
-        <mesh position={[0, 0, -0.0008]}>
-          <planeGeometry args={[CARD_WIDTH * 0.98, CARD_HEIGHT * 0.98]} />
-          <meshStandardMaterial
-            color="#ffffff"
-            side={DoubleSide}
-            roughness={1}
-            metalness={0}
-          />
         </mesh>
         {children}
       </group>

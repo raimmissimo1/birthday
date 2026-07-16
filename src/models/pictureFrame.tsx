@@ -2,15 +2,14 @@ import { useLoader } from "@react-three/fiber";
 import type { ThreeElements } from "@react-three/fiber";
 import { useEffect, useMemo } from "react";
 import { useThree } from "@react-three/fiber";
-import { useTexture } from "@react-three/drei";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import {
   Box3,
-  MeshStandardMaterial,
-  SRGBColorSpace,
+  MeshBasicMaterial,
   Vector3,
   DoubleSide,
 } from "three";
+import { useSafeTexture } from "../components/useSafeTexture";
 
 type PictureFrameProps = ThreeElements["group"] & {
   image: string;
@@ -31,9 +30,7 @@ export function PictureFrame({
 }: PictureFrameProps) {
   const { gl } = useThree();
   const gltf = useLoader(GLTFLoader, "/picture_frame.glb");
-  const pictureTexture = useTexture(image);
-
-  pictureTexture.colorSpace = SRGBColorSpace;
+  const pictureTexture = useSafeTexture(image, "advertisement");
   const maxAnisotropy =
     typeof gl.capabilities.getMaxAnisotropy === "function"
       ? gl.capabilities.getMaxAnisotropy()
@@ -77,11 +74,10 @@ export function PictureFrame({
 
   const pictureMaterial = useMemo(
     () =>
-      new MeshStandardMaterial({
+      new MeshBasicMaterial({
         map: pictureTexture,
-        roughness: 0.08,
-        metalness: 0,
         side: DoubleSide,
+        toneMapped: false,
       }),
     [pictureTexture]
   );
@@ -95,11 +91,11 @@ export function PictureFrame({
   return (
     <group {...groupProps}>
       <group rotation={[0.04, 0, 0]}>
-      <primitive object={frameScene} />
-      <mesh position={imagePosition} rotation={[0.435, Math.PI, 0]} material={pictureMaterial}>
-        <planeGeometry args={[imageWidth, imageHeight]} />
-      </mesh>
-      {children}
+        <primitive object={frameScene} />
+        <mesh position={imagePosition} rotation={[0.435, Math.PI, 0]} material={pictureMaterial}>
+          <planeGeometry args={[imageWidth, imageHeight]} />
+        </mesh>
+        {children}
       </group>
     </group>
   );

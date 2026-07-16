@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1200">
+  <defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#ff91bb"/><stop offset="1" stop-color="#d63f7d"/></linearGradient></defs>
+  <rect width="800" height="1200" fill="url(#bg)"/>
+  <path d="M0 0h800v185C570 95 250 300 0 165Z" fill="#ffd1df" opacity=".7"/><path d="M0 1020c230-150 510-45 800-150v330H0Z" fill="#b92662"/>
+  <path d="M145 300c-50-55-130 13 0 110 130-97 50-165 0-110Zm510 65c-42-47-110 11 0 94 110-83 42-141 0-94Zm-470 520c-37-42-98 9 0 84 98-75 37-126 0-84Z" fill="#fff0f5" opacity=".9"/>
+  <text x="400" y="500" fill="#fff" font-family="Arial, sans-serif" font-size="58" font-weight="700" text-anchor="middle">Здесь может быть</text>
+  <text x="400" y="575" fill="#fff" font-family="Arial, sans-serif" font-size="58" font-weight="700" text-anchor="middle">ваша реклама</text>
+  <text x="400" y="665" fill="#fff7fa" font-family="Arial, sans-serif" font-size="26" text-anchor="middle">Ваше фото или поздравление</text>
+  <path d="M210 740h380" stroke="#fff" stroke-width="4"/><circle cx="400" cy="740" r="12" fill="#fff"/>
+</svg>
