@@ -1,136 +1,68 @@
 # CakeWish
 
-Mini-business MVP for selling personal interactive birthday surprises by link.
+Коммерческий MVP персональных интерактивных 3D-поздравлений по ссылке. Подарок содержит фотографии, музыку, процедурный торт, свечи, финальное сообщение и эффекты.
 
-Users order a custom 3D birthday page with photos, music, cake scene and greeting text. You deliver a ready URL like:
+## Стек
 
-```txt
-https://your-domain.com/g/amina
-```
+React 19, TypeScript, Vite, Three.js, React Three Fiber и Drei. Backend, база данных и авторизация намеренно не используются.
 
-## Run Locally
+## Запуск и сборка
 
 ```bash
 npm install
 npm run dev
-```
-
-Open:
-
-```txt
-http://localhost:5173/
-http://localhost:5173/g/demo
-```
-
-## Build
-
-```bash
 npm run build
-npm run preview
+npm run lint
 ```
 
-## Docker
+Откройте `/` для лендинга и `/g/demo` для демо-подарка.
 
-The production image builds the application and serves it through Nginx with
-SPA fallback enabled, so gift links such as `/g/demo` work after a direct visit.
+## Тарифы
 
-```bash
-docker build -t cakewish .
-docker run --rm -p 8080:80 cakewish
+| Тариф | Цена | Основное |
+| --- | --- | --- |
+| Стандарт | 2 990 ₸ | Готовые торты/фоны, до 5 фото, музыка из коллекции, одно исправление |
+| Премиум | 4 990 ₸ | Все пресеты, цвета, до 12 фото, музыка и фон клиента, два исправления |
+
+## Структура
+
+```text
+src/cakes/                 Процедурные пресеты и 3D-торт
+src/backgrounds/           Единые данные фонов
+src/experience/            Сценарий и 3D-сцена подарка
+src/hooks/                 Музыка и экспериментальное распознавание выдоха
+src/giftConfig.ts          Конфигурации заказов
+public/                    Только разрешённые demo-ассеты
 ```
 
-Open `http://localhost:8080/`.
+## Новый подарок
 
-## MVP Flow
-
-1. Customer opens the landing page.
-2. Customer fills the order form.
-3. The form copies an order summary.
-4. Customer sends the text and photos in Telegram.
-5. You create a new gift config and deploy.
-6. Customer receives a private link.
-
-## Configure Orders
-
-Main config file:
-
-```txt
-src/giftConfig.ts
-```
-
-Change your Telegram link:
-
-```ts
-export const businessConfig = {
-  brandName: "CakeWish",
-  domainExample: "cakewish.app",
-  orderContactUrl: "https://t.me/your_username",
-};
-```
-
-Create a new gift by adding an item to `gifts`:
+Добавьте объект в `gifts` из `src/giftConfig.ts`; React-компоненты менять не нужно.
 
 ```ts
 {
-  id: "amina-birthday",
-  slug: "amina",
-  recipientName: "Amina",
-  senderName: "Daniyar",
-  occasion: "Birthday",
-  introLines: [
-    "> Amina",
-    "...",
-    "> today is your birthday",
-    "...",
-    "> this surprise was made just for you",
-  ],
-  finalMessage: "Happy birthday, Amina",
-  music: "/orders/amina/music.mp3",
-  environment: "/shanghai_bund_4k.hdr",
-  frames: [...],
-  cards: [...],
+  id: "order-2026-001",
+  slug: "сложный-непредсказуемый-slug",
+  recipient: "Алия",
+  introLines: ["> Алия", "> сегодня твой день"],
+  finalMessage: "С днём рождения!",
+  musicUrl: "/orders/order-2026-001/music.mp3",
+  theme: { cake: "cosmic", background: "stars", accentColor: "#9ee7ff" },
+  frames: [],
+  cards: []
 }
 ```
 
-Then the link will be:
+Торты добавляются в `src/cakes/cakePresets.ts`, фоны в `src/backgrounds/backgroundPresets.ts`. Каждый фон содержит CSS fallback, поэтому отсутствие изображения не ломает подарок. Для `custom` задайте `customBackgroundUrl` только в Премиуме.
 
-```txt
-/g/amina
-```
+## Ассеты и приватность
 
-## Assets
+Не храните реальные фото клиентов в публичном репозитории. Для заказов используйте приватное хранилище, сложные slug, ограниченный срок хранения и только музыку/изображения с разрешением на коммерческое использование. Сжимайте фото в WebP/AVIF с JPEG fallback, ограничивайте размер примерно 1600 px по длинной стороне и не используйте тяжёлый HDR как обязательный ресурс.
 
-Default assets are in `public/`.
+## Деплой
 
-Recommended customer structure:
+`public/staticwebapp.config.json` добавляет Azure Static Web Apps SPA fallback: прямое открытие `/g/slug` возвращает `index.html`. Docker/Nginx уже использует такой же fallback.
 
-```txt
-public/orders/amina/frame1.jpg
-public/orders/amina/frame2.jpg
-public/orders/amina/frame3.jpg
-public/orders/amina/frame4.jpg
-public/orders/amina/card.png
-public/orders/amina/music.mp3
-```
+## Браузеры и ограничения
 
-## Deployment Notes
-
-Use one main domain and per-order paths:
-
-```txt
-your-domain.com/g/amina
-your-domain.com/g/dana-20
-your-domain.com/g/mom-birthday
-```
-
-For Vercel/Netlify/static hosting, enable SPA fallback so `/g/demo` opens `index.html` directly.
-
-## Important Optimization TODO
-
-Before paid traffic, reduce asset weight:
-
-1. Replace or compress `public/shanghai_bund_4k.hdr` because it is about 25 MB.
-2. Compress `.glb` models with Draco or mesh optimization.
-3. Compress customer photos before adding them.
-4. Keep music short and compressed.
-5. Add a backend/storage flow only after the first paid orders.
+Поддерживаются современные Chrome, Edge, Safari и Firefox с WebGL. Без WebGL отображается 2D-версия с фоном, фотографиями, текстом и управлением музыкой. Распознавание выдоха экспериментальное: доступ к микрофону запрашивается только после нажатия и кнопка погасить свечу остаётся основным способом. Заказы пока отправляются через клиентскую форму в чат, без серверного хранения.

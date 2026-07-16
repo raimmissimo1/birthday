@@ -1,0 +1,14 @@
+export type BackgroundPresetId = "paris" | "stars" | "luxury" | "clouds" | "neon" | "family" | "rainbow" | "custom";
+
+export type BackgroundPreset = { id: BackgroundPresetId; name: string; description: string; tier: "standard" | "premium"; fallbackGradient: string; overlay: string; ambientLightIntensity: number };
+
+export const backgroundPresets: Record<BackgroundPresetId, BackgroundPreset> = {
+  paris: { id: "paris", name: "Парижский вечер", description: "Романтичные огни города", tier: "standard", fallbackGradient: "linear-gradient(160deg,#1d1230,#7b3152 55%,#e89a73)", overlay: "rgba(15,5,20,.45)", ambientLightIntensity: .75 },
+  stars: { id: "stars", name: "Звёздное небо", description: "Тихая ночная атмосфера", tier: "standard", fallbackGradient: "radial-gradient(circle at 25% 18%,#fff 0 1px,transparent 2px),radial-gradient(circle at 70% 32%,#bde5ff 0 1px,transparent 2px),linear-gradient(160deg,#080d2b,#241143)", overlay: "rgba(5,8,30,.38)", ambientLightIntensity: .55 },
+  luxury: { id: "luxury", name: "Золотая ночь", description: "Тёмный фон с золотым сиянием", tier: "premium", fallbackGradient: "radial-gradient(circle at 65% 20%,#8d681e 0,transparent 22%),linear-gradient(145deg,#060606,#242014)", overlay: "rgba(0,0,0,.48)", ambientLightIntensity: .5 },
+  clouds: { id: "clouds", name: "Пастельные облака", description: "Лёгкий и воздушный фон", tier: "standard", fallbackGradient: "radial-gradient(ellipse at 20% 35%,#fff9ff 0 12%,transparent 25%),radial-gradient(ellipse at 75% 60%,#e9efff 0 14%,transparent 30%),linear-gradient(160deg,#ecaee0,#9dbdf3)", overlay: "rgba(43,28,63,.22)", ambientLightIntensity: 1 },
+  neon: { id: "neon", name: "Неоновый город", description: "Ночной ритм и яркие линии", tier: "standard", fallbackGradient: "linear-gradient(125deg,transparent 45%,#fc52d7 46% 47%,transparent 48%),radial-gradient(circle at 70% 20%,#30d7ff,transparent 20%),linear-gradient(160deg,#101033,#342050)", overlay: "rgba(8,4,22,.42)", ambientLightIntensity: .65 },
+  family: { id: "family", name: "Тёплый вечер", description: "Уютное боке для семьи", tier: "standard", fallbackGradient: "radial-gradient(circle at 20% 30%,#ffd98b 0 4%,transparent 12%),radial-gradient(circle at 78% 58%,#f7a66d 0 5%,transparent 14%),linear-gradient(140deg,#552b28,#ad6a42)", overlay: "rgba(35,15,13,.34)", ambientLightIntensity: .85 },
+  rainbow: { id: "rainbow", name: "Праздничная радуга", description: "Яркие цвета и конфетти", tier: "standard", fallbackGradient: "linear-gradient(135deg,#ee6687,#ffbf57 26%,#76d29a 50%,#72bce8 72%,#ae77d9)", overlay: "rgba(30,12,51,.28)", ambientLightIntensity: .9 },
+  custom: { id: "custom", name: "Фото клиента", description: "Персональный фон из фотографии", tier: "premium", fallbackGradient: "linear-gradient(145deg,#302042,#7a456c)", overlay: "rgba(11,4,20,.55)", ambientLightIntensity: .7 },
+};

@@ -185,7 +185,7 @@ export function Fireworks({ isActive, origin = [0, 5, -14] }: FireworksProps) {
         </bufferGeometry>
         <pointsMaterial
           ref={materialRef}
-          size={1}
+          size={0.06}
           transparent
           vertexColors
           depthWrite={false}
