@@ -1,5 +1,5 @@
 import { useFrame } from "@react-three/fiber";
-import { useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import {
   BufferAttribute,
   BufferGeometry,
@@ -53,7 +53,7 @@ export function Fireworks({ isActive, origin = [0, 5, -14] }: FireworksProps) {
     };
   }
 
-  const resetParticle = (index: number) => {
+  const resetParticle = useCallback((index: number) => {
     const {
       positions,
       velocities,
@@ -67,14 +67,21 @@ export function Fireworks({ isActive, origin = [0, 5, -14] }: FireworksProps) {
     const baseIndex = index * 3;
     const burstOrigin = baseOrigin
       .clone()
-      .add(new Vector3((Math.random() - 0.5) * 1000, Math.random() * 200, (Math.random() - 0.5) * 1000));
+      // Keep bursts near the cake; a large offset places every particle beyond the camera frustum.
+      .add(
+        new Vector3(
+          (Math.random() - 0.5) * 8,
+          (Math.random() - 0.5) * 4,
+          (Math.random() - 0.5) * 5
+        )
+      );
 
     origins[baseIndex] = burstOrigin.x;
     origins[baseIndex + 1] = burstOrigin.y;
     origins[baseIndex + 2] = burstOrigin.z;
 
     const theta = Math.random() * Math.PI * 2;
-    const phi = Math.acos(Math.random() * 2 - 1)* 0.9;
+    const phi = Math.acos(Math.random() * 2 - 1) * 0.9;
     const speed = 1 + Math.random() * 1.4;
 
     velocities[baseIndex] = Math.sin(phi) * Math.cos(theta) * speed;
@@ -96,13 +103,13 @@ export function Fireworks({ isActive, origin = [0, 5, -14] }: FireworksProps) {
 
     lifetimes[index] = 1.6 + Math.random() * 1.3;
     ages[index] = -Math.random() * 1.2;
-  };
+  }, [baseOrigin]);
 
   useEffect(() => {
     for (let i = 0; i < TOTAL_PARTICLES; i += 1) {
       resetParticle(i);
     }
-  }, []);
+  }, [resetParticle]);
 
   useFrame((_, delta) => {
     const geometry = geometryRef.current;

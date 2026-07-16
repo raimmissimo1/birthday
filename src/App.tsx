@@ -18,6 +18,14 @@ import { Table } from "./models/table";
 import { PictureFrame } from "./models/pictureFrame";
 import { Fireworks } from "./components/Fireworks";
 import { BirthdayCard } from "./components/BirthdayCard";
+import { LandingPage } from "./LandingPage";
+import {
+  defaultGift,
+  getGiftBySlug,
+  type BirthdayCardConfig,
+  type GiftConfig,
+  type PictureFrameConfig,
+} from "./giftConfig";
 
 import "./App.css";
 
@@ -34,6 +42,7 @@ type AnimatedSceneProps = {
   onEnvironmentProgressChange?: (progress: number) => void;
   candleLit: boolean;
   onAnimationComplete?: () => void;
+  frames: ReadonlyArray<PictureFrameConfig>;
   cards: ReadonlyArray<BirthdayCardConfig>;
   activeCardId: string | null;
   onToggleCard: (id: string) => void;
@@ -76,36 +85,10 @@ const BACKGROUND_FADE_START = Math.max(
   0
 );
 
-const TYPED_LINES = [
-  "> Aiymzhan",
-  "...",
-  "> today is your birthday",
-  "...",
-  "> so i made you this computer program",
-  "...",
-  "<3 <3 <3 <3 <3 <3 <3 <3 <3 <3 <3 <3 <3 <3 ",
-];
-
 const TYPED_CHAR_DELAY = 100;
 const POST_TYPING_SCENE_DELAY = 1000;
 const CURSOR_BLINK_INTERVAL = 480;
 const GREETINGS_DURATION = 6000;
-
-type BirthdayCardConfig = {
-  id: string;
-  image: string;
-  position: [number, number, number];
-  rotation: [number, number, number];
-};
-
-const BIRTHDAY_CARDS: ReadonlyArray<BirthdayCardConfig> = [
-  {
-    id: "confetti",
-    image: "/card.png",
-    position: [1, 0.081, -2],
-    rotation: [-Math.PI / 2, 0, Math.PI / 3],
-  },
-];
 
 function AnimatedScene({
   isPlaying,
@@ -113,6 +96,7 @@ function AnimatedScene({
   onEnvironmentProgressChange,
   candleLit,
   onAnimationComplete,
+  frames,
   cards,
   activeCardId,
   onToggleCard,
@@ -270,30 +254,15 @@ function AnimatedScene({
       <group ref={tableGroup}>
         <Table />
 
-        <PictureFrame
-          image="/frame2.jpg"
-          position={[0, 0.735, 3]}
-          rotation={[0, 5.6, 0]}
-          scale={0.75}
-        />
-        <PictureFrame
-          image="/frame3.jpg"
-          position={[0, 0.735, -3]}
-          rotation={[0, 4.0, 0]}
-          scale={0.75}
-        />
-        <PictureFrame
-          image="/frame4.jpg"
-          position={[-1.5, 0.735, 2.5]}
-          rotation={[0, 5.4, 0]}
-          scale={0.75}
-        />
-        <PictureFrame
-          image="/frame1.jpg"
-          position={[-1.5, 0.735, -2.5]}
-          rotation={[0, 4.2, 0]}
-          scale={0.75}
-        />
+        {frames.map((frame) => (
+          <PictureFrame
+            key={frame.id}
+            image={frame.image}
+            position={frame.position}
+            rotation={frame.rotation}
+            scale={frame.scale}
+          />
+        ))}
 
         {cards.map((card) => (
           <BirthdayCard
@@ -367,7 +336,7 @@ function EnvironmentBackgroundController({ intensity }: { intensity: number }) {
   return null;
 }
 
-export default function App() {
+function GiftExperience({ gift }: { gift: GiftConfig }) {
   const [hasStarted, setHasStarted] = useState(false);
   const [backgroundOpacity, setBackgroundOpacity] = useState(1);
   const [environmentProgress, setEnvironmentProgress] = useState(0);
@@ -384,9 +353,10 @@ export default function App() {
 
   const backgroundAudioRef = useRef<HTMLAudioElement | null>(null);
   const greetingsTimeoutRef = useRef<number | null>(null);
+  const introLines = gift.introLines;
 
   useEffect(() => {
-    const audio = new Audio("/music.mp3");
+    const audio = new Audio(gift.music);
     audio.loop = true;
     audio.preload = "auto";
     backgroundAudioRef.current = audio;
@@ -399,7 +369,7 @@ export default function App() {
         window.clearTimeout(greetingsTimeoutRef.current);
       }
     };
-  }, []);
+  }, [gift.music]);
 
   const playBackgroundMusic = useCallback(() => {
     const audio = backgroundAudioRef.current;
@@ -427,21 +397,33 @@ export default function App() {
     }, GREETINGS_DURATION);
   }, []);
 
-  const typingComplete = currentLineIndex >= TYPED_LINES.length;
+  const startExperience = useCallback(() => {
+    playBackgroundMusic();
+    setHasStarted(true);
+  }, [playBackgroundMusic]);
+
+  const blowOutCandle = useCallback(() => {
+    if (!hasAnimationCompleted || !isCandleLit) return;
+
+    setIsCandleLit(false);
+    triggerCelebration();
+  }, [hasAnimationCompleted, isCandleLit, triggerCelebration]);
+
+  const typingComplete = currentLineIndex >= introLines.length;
 
   const typedLines = useMemo(() => {
-    if (TYPED_LINES.length === 0) {
+    if (introLines.length === 0) {
       return [""];
     }
 
-    return TYPED_LINES.map((line, index) => {
+    return introLines.map((line, index) => {
       if (typingComplete || index < currentLineIndex) return line;
       if (index === currentLineIndex) {
         return line.slice(0, Math.min(currentCharIndex, line.length));
       }
       return "";
     });
-  }, [currentCharIndex, currentLineIndex, typingComplete]);
+  }, [currentCharIndex, currentLineIndex, introLines, typingComplete]);
 
   const cursorLineIndex = typingComplete
     ? Math.max(typedLines.length - 1, 0)
@@ -476,7 +458,7 @@ export default function App() {
       return;
     }
 
-    const currentLine = TYPED_LINES[currentLineIndex] ?? "";
+    const currentLine = introLines[currentLineIndex] ?? "";
 
     const handle = window.setTimeout(() => {
       if (currentCharIndex < currentLine.length) {
@@ -486,8 +468,8 @@ export default function App() {
 
       let nextLineIndex = currentLineIndex + 1;
       while (
-        nextLineIndex < TYPED_LINES.length &&
-        TYPED_LINES[nextLineIndex].length === 0
+        nextLineIndex < introLines.length &&
+        introLines[nextLineIndex].length === 0
       ) {
         nextLineIndex += 1;
       }
@@ -501,6 +483,7 @@ export default function App() {
     hasStarted,
     currentCharIndex,
     currentLineIndex,
+    introLines,
     typingComplete,
     sceneStarted,
   ]);
@@ -520,26 +503,16 @@ export default function App() {
       event.preventDefault();
 
       if (!hasStarted) {
-        playBackgroundMusic();
-        setHasStarted(true);
+        startExperience();
         return;
       }
 
-      if (hasAnimationCompleted && isCandleLit) {
-        setIsCandleLit(false);
-        triggerCelebration();
-      }
+      blowOutCandle();
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [
-    hasStarted,
-    hasAnimationCompleted,
-    isCandleLit,
-    playBackgroundMusic,
-    triggerCelebration,
-  ]);
+  }, [hasStarted, startExperience, blowOutCandle]);
 
   const handleCardToggle = useCallback((id: string) => {
     setActiveCardId((current) => (current === id ? null : id));
@@ -548,8 +521,38 @@ export default function App() {
   const isScenePlaying = hasStarted && sceneStarted;
 
   return (
-    <div className="App">
+    <div className="App gift-experience">
+      <div className="orientation-prompt" role="status">
+        <span className="orientation-icon" aria-hidden="true" />
+        <p>
+          Поверните телефон горизонтально
+          <small>Так сюрприз будет смотреться лучше</small>
+        </p>
+      </div>
+      {gift.backgroundImage && (
+        <div
+          className="gift-photo-background"
+          style={{ backgroundImage: `url(${gift.backgroundImage})` }}
+          aria-hidden="true"
+        />
+      )}
       <FallingGreetings active={showGreetings} />
+
+      {!hasStarted && (
+        <div className="start-gate">
+          <p className="eyebrow">Для {gift.recipientName}</p>
+          <h1>Интерактивный сюрприз</h1>
+          <p>
+            Фото и 3D-торт готовы. Нажми, чтобы открыть подарок.
+          </p>
+          <button className="primary-action" type="button" onClick={startExperience}>
+            Открыть сюрприз
+          </button>
+          <a className="start-back-link" href="/">
+            Заказать такой же
+          </a>
+        </div>
+      )}
 
       <div
         className="background-overlay"
@@ -579,13 +582,18 @@ export default function App() {
       {showFinalMessage && (
         <div className="final-message">
           <div className="final-message-subtitle">
-            I hope this little surprise made you smile
+            {gift.finalMessage}
           </div>
         </div>
       )}
 
       {hasAnimationCompleted && isCandleLit && (
-        <div className="hint-overlay">press space to blow out the candle</div>
+        <div className="hint-overlay">
+          <button className="blow-button" type="button" onClick={blowOutCandle}>
+            Blow out the candle
+          </button>
+          <span>or press space</span>
+        </div>
       )}
 
       <Canvas
@@ -602,7 +610,8 @@ export default function App() {
             onBackgroundFadeChange={setBackgroundOpacity}
             onEnvironmentProgressChange={setEnvironmentProgress}
             onAnimationComplete={() => setHasAnimationCompleted(true)}
-            cards={BIRTHDAY_CARDS}
+            frames={gift.frames}
+            cards={gift.cards}
             activeCardId={activeCardId}
             onToggleCard={handleCardToggle}
           />
@@ -615,7 +624,7 @@ export default function App() {
           />
 
           <Environment
-            files={["/shanghai_bund_4k.hdr"]}
+            files={[gift.environment]}
             backgroundRotation={[0, 3.3, 0]}
             environmentRotation={[0, 3.3, 0]}
             background
@@ -633,4 +642,39 @@ export default function App() {
       </Canvas>
     </div>
   );
+}
+
+function GiftNotFound() {
+  return (
+    <main className="not-found-page">
+      <p className="eyebrow">Gift not found</p>
+      <h1>Такой ссылки пока нет</h1>
+      <p>Проверь slug заказа или открой demo-подарок.</p>
+      <div className="hero-actions">
+        <a className="primary-action" href="/g/demo">
+          Открыть demo
+        </a>
+        <a className="secondary-action" href="/">
+          На главную
+        </a>
+      </div>
+    </main>
+  );
+}
+
+export default function App() {
+  const path = window.location.pathname.replace(/\/+$/, "") || "/";
+
+  if (path.startsWith("/g/")) {
+    const slug = decodeURIComponent(path.replace("/g/", ""));
+    const gift = getGiftBySlug(slug);
+
+    return gift ? <GiftExperience gift={gift} /> : <GiftNotFound />;
+  }
+
+  if (path === "/demo") {
+    return <GiftExperience gift={defaultGift} />;
+  }
+
+  return <LandingPage />;
 }

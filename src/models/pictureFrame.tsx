@@ -66,7 +66,7 @@ export function PictureFrame({
   const [offsetX, offsetY, offsetZ] = imageOffset ?? [
     0,
     0.05,
-    -0.27,
+    -0.27 - imageInset,
   ];
 
   const imagePosition: [number, number, number] = [
