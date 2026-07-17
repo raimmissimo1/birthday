@@ -1,0 +1,1 @@
+import { CarouselGallery } from "./CarouselGallery"; import { MemoryGrid } from "./MemoryGrid"; import { PolaroidGallery } from "./PolaroidGallery"; export const galleryRegistry = { polaroid: PolaroidGallery, carousel: CarouselGallery, "memory-grid": MemoryGrid };

@@ -1,0 +1,2 @@
+import { useEffect } from "react"; import type { GiftConfig } from "../../giftConfig"; import { preloadGiftAssets } from "./preloadGiftAssets";
+export function GiftPreloader({ gift, onReady }: { gift: GiftConfig; onReady: () => void }) { useEffect(() => { let active = true; void preloadGiftAssets(gift).finally(() => { if (active) onReady(); }); return () => { active = false; }; }, [gift, onReady]); return null; }

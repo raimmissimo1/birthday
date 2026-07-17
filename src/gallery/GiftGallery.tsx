@@ -1,0 +1,2 @@
+import type { GalleryPhoto, GalleryVariant } from "./galleryTypes"; import { CarouselGallery } from "./CarouselGallery"; import { MemoryGrid } from "./MemoryGrid"; import { PolaroidGallery } from "./PolaroidGallery";
+export function GiftGallery({ variant, photos }: { variant: GalleryVariant; photos: GalleryPhoto[] }) { if (variant === "polaroid") return <PolaroidGallery photos={photos} />; if (variant === "carousel") return <CarouselGallery photos={photos} />; if (variant === "memory-grid") return <MemoryGrid photos={photos} />; return null; }

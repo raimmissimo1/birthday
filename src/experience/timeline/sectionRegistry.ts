@@ -1,0 +1,1 @@
+import { IntroRenderer } from "../intro/IntroRenderer"; export const sectionRegistry = { "typed-message": IntroRenderer, "countdown": IntroRenderer, "cinematic-text": IntroRenderer, "fake-chat": IntroRenderer };

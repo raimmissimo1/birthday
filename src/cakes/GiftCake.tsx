@@ -1,0 +1,2 @@
+import { Suspense } from "react"; import { ProceduralCake } from "./ProceduralCake"; import type { CakePreset } from "./types"; import { ModelCake } from "./ModelCake";
+export function GiftCake({ preset, candleLit }: { preset: CakePreset; candleLit: boolean }) { if (preset.renderMode !== "model" || !preset.modelUrl) return <ProceduralCake preset={preset} candleLit={candleLit} />; return <Suspense fallback={<ProceduralCake preset={preset} candleLit={candleLit} />}><ModelCake preset={preset} /></Suspense>; }
