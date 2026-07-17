@@ -4,6 +4,8 @@ import { useMemo } from "react";
 import type { Group } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
+useLoader.preload(GLTFLoader, "/table.glb");
+
 type TableProps = ThreeElements["group"];
 
 export function Table({ children, ...groupProps }: TableProps) {

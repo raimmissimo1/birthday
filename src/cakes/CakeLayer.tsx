@@ -13,8 +13,12 @@ export function CakeLayer({ radius, height, y, cakeColor, frostingColor, showDri
   return (
     <group position={[0, y, 0]}>
       <mesh castShadow receiveShadow>
-        <cylinderGeometry args={[radius, radius * 1.025, height, 48]} />
-        <meshStandardMaterial color={cakeColor} roughness={0.72} metalness={0} />
+        <cylinderGeometry args={[radius * 0.985, radius * 1.025, height, 48]} />
+        <meshStandardMaterial color={cakeColor} roughness={0.62} metalness={0} />
+      </mesh>
+      <mesh position={[0, -height / 2 + 0.055, 0]}>
+        <torusGeometry args={[radius * 0.98, 0.035, 8, 48]} />
+        <meshStandardMaterial color={frostingColor} roughness={0.78} metalness={0} />
       </mesh>
       <mesh position={[0, height / 2 - 0.015, 0]}>
         <cylinderGeometry args={[radius * 0.985, radius * 0.985, 0.075, 48]} />

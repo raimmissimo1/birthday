@@ -18,7 +18,9 @@ type PictureFrameProps = ThreeElements["group"] & {
   imageInset?: number;
 };
 
-const DEFAULT_IMAGE_SCALE: [number, number] = [0.82, 0.82];
+const DEFAULT_IMAGE_SCALE: [number, number] = [0.9, 0.9];
+
+useLoader.preload(GLTFLoader, "/picture_frame.glb");
 
 export function PictureFrame({
   image,
